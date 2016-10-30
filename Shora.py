@@ -11,7 +11,7 @@ live_requests = []
 
 
 class Chat:
-    def __init__(self, id, username, first_name, last_name):
+    def __init__(self, id, username=None, first_name=None, last_name=None):
         self.id = id
         self.username = username
         self.first_name = first_name
