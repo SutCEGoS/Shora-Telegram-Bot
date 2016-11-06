@@ -2,18 +2,20 @@ import requests
 import hmac
 import json
 
+
 class ShoraMessage:
     def __init__(self, where, title, description=''):
         self.where = str(where)
         self.title = str(title)
         self.description = str(description)
-    
+
     def to_json(self):
         return json.dumps({
             'place': self.where,
             'title': self.title,
             'description': self.description
         })
+
 
 class ShoraAPI:
     def __init__(self, shora_url, sign_secret=None):
