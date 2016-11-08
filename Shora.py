@@ -23,7 +23,6 @@ class Subject:
         self.item = ''
         self.place = ''
         self.more = ''
-        self.done = False
 
 
 class Request:
@@ -35,6 +34,9 @@ class Request:
 def on_chat_message(msg):
     # print('msg: ', msg)
     content_type, chat_type, chat_id = telepot.glance(msg)
+    if content_type != 'text':
+        bot.sendMessage(chat_id, 'آر یو کیدینگ می؟')
+        return None
     # print('Chat:', content_type, chat_type, chat_id)
     command = msg['text']
 
@@ -48,12 +50,64 @@ def on_chat_message(msg):
             [dict(text='سایت شورا صنفی', url='http://shora.ce.sharif.edu/')],
             [InlineKeyboardButton(text='تاسیسات', callback_data='tasisat')],
             [InlineKeyboardButton(text='گمشده ها', callback_data='lost')],
-            [dict(text='متن تا الان', callback_data='tillnow')],
-            [dict(text='انصراف', callback_data='abort')],
         ])
         global message_with_inline_keyboard
         message_with_inline_keyboard = bot.sendMessage(chat_id, 'منو',
                                                        reply_markup=markup)
+        return None
+
+    if command == '/done':
+        working_request = None
+        working_request_index = -1
+        for req in live_requests:
+            if req.chat.id == chat_id:
+                working_request = req
+                working_request_index = live_requests.index(working_request)
+                break
+        if working_request_index == -1:
+            bot.sendMessage(chat_id, 'چیزی نگفتی که هنوز 🤔')
+            return None
+        if working_request.subject.item == '' or working_request.subject.place == '':
+            bot.sendMessage(chat_id, 'مورد یا مکان رو هنوز مشخص نکردی 😁')
+            return None
+        shora_api.send_message(ShoraMessage(working_request.subject.item,
+                                            working_request.subject.place,
+                                            working_request.subject.more))
+        # commit new request
+        live_requests.pop(working_request_index)
+        live_users.remove(chat_id)
+        bot.sendMessage(chat_id, 'مساله ی موردنظر شما ثبت شد' + '\n' +
+                        'آیتم: ' + working_request.subject.item + '\n' +
+                        'مکان: ' + working_request.subject.place + '\n' +
+                        'توضیحات: ' + working_request.subject.more + '\n' +
+                        '😜')
+        return None
+
+    if command == '/cancel':
+        if chat_id not in live_users:
+            bot.sendMessage(chat_id, 'هنوز چیزی نگفتی 🤔')
+            return None
+        if chat_id in live_users:
+            live_users.remove(chat_id)
+        for req in live_requests:
+            if req.chat.id == chat_id:
+                live_requests.remove(req)
+                bot.sendMessage(chat_id, 'حلله ✋🏻')
+                break
+        return None
+
+    if command == '/content':
+        # print('content')
+        if chat_id not in live_users:
+            bot.sendMessage(chat_id, 'هنوز چیزی نگفتی 🤔')
+            return None
+        for req in live_requests:
+            if req.chat.id == chat_id:
+                bot.sendMessage(chat_id, 'متن تا الان: ' + '\n' +
+                                'آیتم: ' + req.subject.item + '\n' +
+                                'مکان: ' + req.subject.place + '\n' +
+                                'توضیحات: ' + req.subject.more + '\n' +
+                                '😜')
         return None
 
     chat = Chat(**msg['from'])
@@ -78,10 +132,6 @@ def on_chat_message(msg):
 
         working_subject = working_request.subject
 
-        if working_subject.done:
-            # print('working_subject is Done')
-            return None
-
         if working_subject.item == '':
             # print('If 1')
             working_subject.item = text
@@ -102,8 +152,10 @@ def on_chat_message(msg):
             working_request.subject = working_subject
             live_requests.pop(working_request_index)
             live_users.remove(chat_id)
+
             shora_api.send_message(ShoraMessage(working_subject.item,
-                                                working_subject.place, working_subject.more))
+                                                working_subject.place,
+                                                working_subject.more))
             # commit new request
             bot.sendMessage(chat_id, 'مساله ی موردنظر شما ثبت شد' + '\n' +
                             'آیتم: ' + working_subject.item + '\n' +
@@ -117,8 +169,6 @@ def on_chat_message(msg):
             [dict(text='سایت شورا صنفی', url='http://shora.ce.sharif.edu/')],
             [InlineKeyboardButton(text='تاسیسات', callback_data='tasisat')],
             [InlineKeyboardButton(text='گمشده ها', callback_data='lost')],
-            [dict(text='متن تا الان', callback_data='tillnow')],
-            [dict(text='انصراف', callback_data='abort')],
         ])
         global message_with_inline_keyboard
         message_with_inline_keyboard = bot.sendMessage(chat_id, 'منو',
@@ -137,40 +187,18 @@ def on_callback_query(msg):
 
     if data == 'tasisat':
         # print('Tasisat callback')
+        if from_id in live_users:
+            bot.sendMessage(from_id, 'یدونه یدونه!')
+            return None
         live_users.append(from_id)
         bot.sendMessage(from_id, 'لطفا آیتم مورد نظر را بفرمایید', reply_markup=ForceReply())
     elif data == 'lost':
         # print('lost callback')
+        if from_id in live_users:
+            bot.sendMessage(from_id, 'یدونه یدونه!')
+            return None
         live_users.append(from_id)
         bot.sendMessage(from_id, 'لطفا آیتم مورد نظر را بفرمایید', reply_markup=ForceReply())
-    elif data == 'tillnow':
-        # print('tillnow callback')
-        if from_id not in live_users:
-            bot.answerCallbackQuery(query_id, text='هنوز چیزی نگفتی که!', show_alert=True)
-            return None
-        for req in live_requests:
-            if req.chat.id == from_id:
-                bot.answerCallbackQuery(query_id, 'متن تا الان: ' + '\n' +
-                                        'آیتم: ' + req.subject.item + '\n' +
-                                        'مکان: ' + req.subject.place + '\n' +
-                                        'توضیحات: ' + req.subject.more + '\n' +
-                                        '😜', show_alert=True)
-                break
-    elif data == 'abort':
-        # print('abort callback')
-        if from_id not in live_users:
-            # print('If 1 callback')
-            bot.answerCallbackQuery(query_id, text='هنوز چیزی نگفتی که!', show_alert=True)
-            return None
-        if from_id in live_users:
-            # print('If 2 callback')
-            live_users.remove(from_id)
-        for req in live_requests:
-            if req.chat.id == from_id:
-                # print('If 3 callback')
-                live_requests.remove(req)
-                break
-        bot.answerCallbackQuery(query_id, text='حلله!', show_alert=True)
 
 
 # almost one to go
