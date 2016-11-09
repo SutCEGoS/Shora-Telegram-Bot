@@ -137,14 +137,14 @@ def on_chat_message(msg):
             working_subject.item = text
             working_request.subject = working_subject
             live_requests[working_request_index] = working_request
-            bot.sendMessage(chat_id, 'لطفا مکان را بفرمایید', reply_markup=ForceReply())
+            bot.sendMessage(chat_id, 'لطفا محل موردنظر را بفرمایید', reply_markup=ForceReply())
 
         elif working_subject.place == '':
             # print('If 2')
             working_subject.place = text
             working_request.subject = working_subject
             live_requests[working_request_index] = working_request
-            bot.sendMessage(chat_id, 'توضیحات بیشتر در صورت نیاز', reply_markup=ForceReply())
+            bot.sendMessage(chat_id, 'توضیحات بیشتر (اگر نیاز به توضیح ندارد /done را بزنید)', reply_markup=ForceReply())
 
         elif working_subject.more == '':
             # print('If 3')
@@ -191,14 +191,14 @@ def on_callback_query(msg):
             bot.sendMessage(from_id, 'یدونه یدونه!')
             return None
         live_users.append(from_id)
-        bot.sendMessage(from_id, 'لطفا آیتم مورد نظر را بفرمایید', reply_markup=ForceReply())
+        bot.sendMessage(from_id, 'لطفا عنوان گزارش یا پیشنهاد خود را بفرمایید', reply_markup=ForceReply())
     elif data == 'lost':
         # print('lost callback')
         if from_id in live_users:
             bot.sendMessage(from_id, 'یدونه یدونه!')
             return None
         live_users.append(from_id)
-        bot.sendMessage(from_id, 'لطفا آیتم مورد نظر را بفرمایید', reply_markup=ForceReply())
+        bot.sendMessage(from_id, 'لطفا عنوان وسیله پیداشده یا گم شده را بفرمایید', reply_markup=ForceReply())
 
 
 # almost one to go
