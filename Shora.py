@@ -202,7 +202,6 @@ def on_callback_query(msg):
 
 
 # almost one to go
-
 shora_api = ShoraAPI(SHORA_CALLBACK_URL, SIGNING_SECRET)
 bot = telepot.Bot(TOKEN)
 answerer = telepot.helper.Answerer(bot)
