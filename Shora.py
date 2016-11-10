@@ -23,6 +23,7 @@ class Subject:
         self.item = ''
         self.place = ''
         self.more = ''
+        self.type = 0  # 1 ----> tasisat, 2 ----> lost
 
 
 class Request:
@@ -81,6 +82,11 @@ def on_chat_message(msg):
                         'مکان: ' + working_request.subject.place + '\n' +
                         'توضیحات: ' + working_request.subject.more + '\n' +
                         '😜')
+        if working_request.subject.type == 1:
+            bot.sendMessage(chat_id,
+                            'ما پیگیر مساله ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
+        elif working_request.subject.type == 2:
+            bot.sendMessage(chat_id, 'امیدواریم وسیله گم شده ی خود را هر چه زودتر پیدا کنید.')
         return None
 
     if command == '/cancel':
@@ -132,6 +138,13 @@ def on_chat_message(msg):
 
         working_subject = working_request.subject
 
+        # a little hard coded, i know
+        if 'reply_to_message' in msg:
+            if 'گزارش' in msg['reply_to_message']['text']:
+                working_subject.type = 1
+            elif 'گم' in msg['reply_to_message']['text']:
+                working_subject.type = 2
+
         if working_subject.item == '':
             # print('If 1')
             working_subject.item = text
@@ -144,7 +157,8 @@ def on_chat_message(msg):
             working_subject.place = text
             working_request.subject = working_subject
             live_requests[working_request_index] = working_request
-            bot.sendMessage(chat_id, 'توضیحات بیشتر (اگر نیاز به توضیح ندارد /done را بزنید)', reply_markup=ForceReply())
+            bot.sendMessage(chat_id, 'توضیحات بیشتر (اگر نیاز به توضیح ندارد /done را بزنید)',
+                            reply_markup=ForceReply())
 
         elif working_subject.more == '':
             # print('If 3')
@@ -162,6 +176,11 @@ def on_chat_message(msg):
                             'مکان: ' + working_subject.place + '\n' +
                             'توضیحات: ' + working_subject.more + '\n' +
                             '😜')
+            if working_subject.type == 1:
+                bot.sendMessage(chat_id,
+                                'ما پیگیر مساله ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
+            elif working_subject.type == 2:
+                bot.sendMessage(chat_id, 'امیدواریم وسیله گم شده ی خود را هر چه زودتر پیدا کنید.')
 
     else:
         # print('Gazcher message')
