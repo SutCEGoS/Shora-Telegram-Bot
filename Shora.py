@@ -79,7 +79,7 @@ def on_chat_message(msg):
         if working_request.subject.item == '' or working_request.subject.place == '':
             bot.sendMessage(chat_id, 'مورد یا مکان رو هنوز مشخص نکردی 😁')
             return None
-        shora_api.send_message(ShoraMessage(working_request.subject.item,
+        api_success, api_message = shora_api.send_message(ShoraMessage(working_request.subject.item,
                                             working_request.subject.place,
                                             working_request.subject.more))
         # commit new request
@@ -90,7 +90,10 @@ def on_chat_message(msg):
                         'مکان: ' + working_request.subject.place + '\n' +
                         'توضیحات: ' + working_request.subject.more + '\n')
                         
-        print("New issue submitted " + working_request.subject)
+        if api_success:
+            print("New issue submitted " + working_request.subject)
+        else:
+            print("Issue could not be submitted " + working_request.subject + " with error message: " + api_message)
 
         if working_request.subject.type == 1:
             bot.sendMessage(chat_id,
