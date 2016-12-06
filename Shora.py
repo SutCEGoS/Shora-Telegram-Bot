@@ -125,8 +125,7 @@ def on_chat_message(msg):
                 bot.sendMessage(chat_id, 'متن تا الان: ' + '\n' +
                                 'آیتم: ' + req.subject.item + '\n' +
                                 'مکان: ' + req.subject.place + '\n' +
-                                'توضیحات: ' + req.subject.more + '\n' +
-                                '😜')
+                                'توضیحات: ' + req.subject.more + '\n')
         return None
 
     chat = Chat(**msg['from'])
