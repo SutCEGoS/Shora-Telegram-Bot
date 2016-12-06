@@ -24,6 +24,14 @@ class Subject:
         self.place = ''
         self.more = ''
         self.type = 0  # 1 ----> tasisat, 2 ----> lost
+    
+    def __str__(self):
+        return '%s %s %s %s' % (
+            self.item,
+            self.place,
+            self.more,
+            'تأسیسات' if self.type == 1 else 'گمشده'
+        )
 
 
 class Request:
@@ -66,7 +74,7 @@ def on_chat_message(msg):
                 working_request_index = live_requests.index(working_request)
                 break
         if working_request_index == -1:
-            bot.sendMessage(chat_id, 'چیزی نگفتی که هنوز 🤔')
+            # bot.sendMessage(chat_id, 'چیزی نگفتی که هنوز 🤔')
             return None
         if working_request.subject.item == '' or working_request.subject.place == '':
             bot.sendMessage(chat_id, 'مورد یا مکان رو هنوز مشخص نکردی 😁')
@@ -80,8 +88,10 @@ def on_chat_message(msg):
         bot.sendMessage(chat_id, 'مساله ی موردنظر شما ثبت شد' + '\n' +
                         'آیتم: ' + working_request.subject.item + '\n' +
                         'مکان: ' + working_request.subject.place + '\n' +
-                        'توضیحات: ' + working_request.subject.more + '\n' +
-                        '😜')
+                        'توضیحات: ' + working_request.subject.more + '\n')
+                        
+        print("New issue submitted " + working_request.subject)
+
         if working_request.subject.type == 1:
             bot.sendMessage(chat_id,
                             'ما پیگیر مساله ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
@@ -183,7 +193,6 @@ def on_chat_message(msg):
                 bot.sendMessage(chat_id, 'امیدواریم وسیله گم شده ی خود را هر چه زودتر پیدا کنید.')
 
     else:
-        # print('Gazcher message')
         markup = InlineKeyboardMarkup(inline_keyboard=[
             [dict(text='سایت شورا صنفی', url='http://shora.ce.sharif.edu/')],
             [InlineKeyboardButton(text='تاسیسات', callback_data='tasisat')],
@@ -195,7 +204,6 @@ def on_chat_message(msg):
 
 
 def on_edited_chat_message(msg):
-    # print('Edit kard')
     content_type, chat_type, chat_id = telepot.glance(msg, flavor='edited_chat')
     bot.sendMessage(chat_id, 'ادیت نکن دیگه🙈', reply_to_message_id=msg['message_id'])
 
