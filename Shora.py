@@ -56,9 +56,9 @@ def on_chat_message(msg):
 
     if command == '/show':
         markup = InlineKeyboardMarkup(inline_keyboard=[
-            [dict(text='سایت شورا صنفی', url='http://shora.ce.sharif.edu/')],
+            [dict(text='سایت شورای صنفی', url='http://shora.ce.sharif.edu/')],
             [InlineKeyboardButton(text='تاسیسات', callback_data='tasisat')],
-            [InlineKeyboardButton(text='گمشده ها', callback_data='lost')],
+            [InlineKeyboardButton(text='گمشده‌ها', callback_data='lost')],
         ])
         global message_with_inline_keyboard
         message_with_inline_keyboard = bot.sendMessage(chat_id, 'منو',
@@ -85,7 +85,7 @@ def on_chat_message(msg):
         # commit new request
         live_requests.pop(working_request_index)
         live_users.remove(chat_id)
-        bot.sendMessage(chat_id, 'مساله ی موردنظر شما ثبت شد' + '\n' +
+        bot.sendMessage(chat_id, 'مسالهٔ موردنظر شما ثبت شد' + '\n' +
                         'آیتم: ' + working_request.subject.item + '\n' +
                         'مکان: ' + working_request.subject.place + '\n' +
                         'توضیحات: ' + working_request.subject.more + '\n')
@@ -97,7 +97,7 @@ def on_chat_message(msg):
 
         if working_request.subject.type == 1:
             bot.sendMessage(chat_id,
-                            'ما پیگیر مساله ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
+                            'ما پیگیر مسالهٔ ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
         elif working_request.subject.type == 2:
             bot.sendMessage(chat_id, 'امیدواریم وسیله گم شده ی خود را هر چه زودتر پیدا کنید.')
         return None
@@ -179,18 +179,23 @@ def on_chat_message(msg):
             live_requests.pop(working_request_index)
             live_users.remove(chat_id)
 
-            shora_api.send_message(ShoraMessage(working_subject.item,
+            api_success, api_message = shora_api.send_message(ShoraMessage(working_subject.item,
                                                 working_subject.place,
                                                 working_subject.more))
+        
+            if api_success:
+                print("New issue submitted " + working_request.subject)
+            else:
+                print("Issue could not be submitted " + working_request.subject + " with error message: " + api_message)
+
             # commit new request
-            bot.sendMessage(chat_id, 'مساله ی موردنظر شما ثبت شد' + '\n' +
+            bot.sendMessage(chat_id, 'مسالهٔ موردنظر شما ثبت شد' + '\n' +
                             'آیتم: ' + working_subject.item + '\n' +
                             'مکان: ' + working_subject.place + '\n' +
-                            'توضیحات: ' + working_subject.more + '\n' +
-                            '😜')
+                            'توضیحات: ' + working_subject.more)
             if working_subject.type == 1:
                 bot.sendMessage(chat_id,
-                                'ما پیگیر مساله ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
+                                'ما پیگیر مسالهٔ ثبت شده شما هستیم و آن را در لیست کارهای بخش تاسیسات قرار خواهیم داد.')
             elif working_subject.type == 2:
                 bot.sendMessage(chat_id, 'امیدواریم وسیله گم شده ی خود را هر چه زودتر پیدا کنید.')
 

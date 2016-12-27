@@ -37,7 +37,7 @@ class ShoraAPI:
 
         try:
             response = requests.post(url=url, headers=headers, timeout=10, data=payload).json()
-            return True, response['message']
+            return response['success'], response['message']
         except requests.exceptions.ConnectTimeout:
             return False, 'Timeout'
         except Exception:
