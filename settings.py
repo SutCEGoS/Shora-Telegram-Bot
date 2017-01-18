@@ -1,5 +1,4 @@
 import os
-from settings import DSN_ADDRESS
 from raven.handlers.logging import SentryHandler
 from raven import Client
 from raven.conf import setup_logging
