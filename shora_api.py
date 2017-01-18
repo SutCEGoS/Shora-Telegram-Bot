@@ -22,16 +22,16 @@ class ShoraAPI:
         self.shora_base_url = shora_url
         if sign_secret:
             self.mac = hmac.new(sign_secret.encode('utf-8'))
-
+            
     def send_message(self, shora_message):
-        payload = shora_message.to_json()
+        payload = shora_message.to_json().encode('utf-8')
         headers = {
             'Content-Type': 'application/json',
             'User-Agent': 'ShoraBot/1.0 (http://shora.ce.sharif.edu/)',
         }
         if self.mac:
             mac = self.mac
-            mac.update(payload.encode('utf-8'))
+            mac.update(payload)
             headers.update({'X-Mac': str(mac.hexdigest())})
         url = self.shora_base_url
 
