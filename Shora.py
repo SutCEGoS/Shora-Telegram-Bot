@@ -1,14 +1,18 @@
 import time
 import telepot
+import logging
+
 from telepot.namedtuple import ForceReply
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from settings import *
 from shora_api import *
 
+
 message_with_inline_keyboard = None
 live_users = []
 live_requests = []
 
+logger = logging.getLogger(__name__)
 
 class Chat:
     def __init__(self, id, username=None, first_name=None, last_name=None):
@@ -91,9 +95,9 @@ def on_chat_message(msg):
                         'توضیحات: ' + working_request.subject.more + '\n')
                         
         if api_success:
-            print("New issue submitted " + working_request.subject)
+            logger.info("New issue submitted " + working_request.subject)
         else:
-            print("Issue could not be submitted " + working_request.subject + " with error message: " + api_message)
+            logger.error("Issue could not be submitted " + working_request.subject + " with error message: " + api_message)
 
         if working_request.subject.type == 1:
             bot.sendMessage(chat_id,
@@ -184,9 +188,9 @@ def on_chat_message(msg):
                                                 working_subject.more))
         
             if api_success:
-                print("New issue submitted " + working_request.subject)
+                logger.info("New issue submitted " + working_request.subject)
             else:
-                print("Issue could not be submitted " + working_request.subject + " with error message: " + api_message)
+                logger.error("Issue could not be submitted " + working_request.subject + " with error message: " + api_message)
 
             # commit new request
             bot.sendMessage(chat_id, 'مسالهٔ موردنظر شما ثبت شد' + '\n' +
